@@ -10,6 +10,26 @@ End to end example of deploying Openshift on VMware. In this example we use the 
 * [terraform-certs-letsencrypt-cloudflare](https://github.com/ibm-cloud-infrastructure/terraform-certs-letsencrypt-cloudflare) - To generate certs from LetsEncrypt for our console and router
 * [terraform-openshift3-deploy](https://github.com/ibm-cloud-infrastructure/terraform-openshift3-deploy) - To generate the ansible inventory file and deploy Openshift.
 
+Before deploying, you will need to set the following environment variables:
+
+```bash
+export VSPHERE_USER=<user>
+export VSPHERE_PASSWORD=<password>
+
+export CLOUDFLARE_EMAIL=<cloudflare email>
+export CLOUDFLARE_TOKEN=<cloudflare api key>
+export CLOUDFLARE_API_KEY=<cloudflare api key>
+```
+
+Use the following commands to deploy:
+
+```bash
+terraform init
+terraform apply 
+```
+
+## Example
+
 Example `terraform.tfvars` file.  We provision an HA Openshift cluster.
 
 ```terraform
