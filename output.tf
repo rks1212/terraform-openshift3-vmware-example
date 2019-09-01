@@ -27,11 +27,11 @@ output "infra_hostname" {
 }
 
 output "worker_private_ip" {
-  value = "${module.infrastructure.app_private_ip}"
+  value = "${module.infrastructure.worker_private_ip}"
 }
 
 output "worker_hostname" {
-  value = "${module.infrastructure.app_hostname}"
+  value = "${module.infrastructure.worker_hostname}"
 }
 
 output "storage_private_ip" {
@@ -42,16 +42,8 @@ output "storage_hostname" {
   value = "${module.infrastructure.storage_hostname}"
 }
 
-output "haproxy_public_ip" {
-  value = "${module.infrastructure.haproxy_public_ip}"
-}
-
-output "haproxy_hostname" {
-  value = "${module.infrastructure.haproxy_hostname}"
-}
-
 output "console" {
-  value = "console.${var.app_cname}-${random_id.tag.hex}.${var.domain}"
+  value = "${var.master_cname}"
 }
 
 output "username" {
@@ -60,8 +52,4 @@ output "username" {
 
 output "password" {
   value = "admin"
-}
-
-output "kubeconfig" {
-  value = "${module.kubeconfig.config}"
 }

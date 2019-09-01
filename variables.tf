@@ -2,59 +2,85 @@
 # vCenter Configuration
 ####################################
 variable "vsphere_server" {}
+variable "vsphere_allow_unverified_ssl" {
+  default = true
+}
 
 variable "vsphere_datacenter" {}
 variable "vsphere_cluster" {}
 variable "vsphere_resource_pool" {}
-variable "network_label" {}
-variable "bastion_network_label" {}
-variable "datastore" {}
+variable "datastore" {
+  default = ""
+}
+variable "datastore_cluster" {
+  default = ""
+}
 variable "template" {}
+variable "folder" {}
 
 ####################################
 # Infrastructure Configuration
 ####################################
 
-variable "domain" {
-  default = ""
-}
 
 variable "hostname_prefix" {
   default = ""
 }
 
-variable "private_ssh_key" {
-  default = "~/.ssh/openshift_rsa"
-}
-
-variable "public_ssh_key" {
-  default = "~/.ssh/openshift_rsa.pub"
-}
-
-variable "bastion_ssh_key_file" {
-  default = "~/.ssh/openshift_rsa"
-}
-
-variable "bastion_staticipblock" {}
-variable "bastion_staticipblock_offset" {}
-variable "bastion_gateway" {}
-variable "bastion_netmask" {}
-
-variable "bastion_dns_servers" {
-  type = "list"
-}
-
-variable "staticipblock" {}
-variable "staticipblock_offset" {}
-variable "gateway" {}
-variable "netmask" {}
-
-variable "dns_servers" {
-  type = "list"
-}
-
 variable "ssh_user" {}
 variable "ssh_password" {}
+
+variable "ssh_private_key_file" {
+  default = "~/.ssh/id_rsa"
+}
+
+variable "ssh_public_key_file" {
+  default = "~/.ssh/id_rsa.pub"
+}
+
+variable "bastion_ssh_private_key_file" {
+  default = "~/.ssh/id_rsa"
+}
+variable "private_network_label" {}
+variable "private_domain" {}
+variable "private_staticipblock" {}
+variable "private_staticipblock_offset" {}
+variable "private_netmask" {}
+variable "private_gateway" {}
+variable "private_dns_servers" {
+  type = "list"
+}
+
+variable "public_network_label" {
+  default = ""
+}
+
+variable "public_staticipblock" {
+  default = "0.0.0.0/0"
+}
+
+variable "public_staticipblock_offset" {
+  default = "0"
+}
+
+variable "public_netmask" {
+  default = "0"
+}
+
+variable "public_gateway" {
+  default = ""
+}
+
+variable "public_domain" {
+  default = ""
+}
+
+variable "public_dns_servers" {
+  type = "list"
+  default = []
+}
+
+
 
 variable "bastion" {
   type = "map"
@@ -64,11 +90,9 @@ variable "bastion" {
     vcpu                = "2"
     memory              = "8192"
     disk_size           = ""      # Specify size or leave empty to use same size as template.
-    datastore_disk_size = "50"    # Specify size datastore directory, default 50.
     thin_provisioned    = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     eagerly_scrub       = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
     keep_disk_on_remove = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange       = ""      # Leave blank for DHCP, else masters will be allocated range starting from this address
   }
 }
 
@@ -81,14 +105,9 @@ variable "master" {
     memory                = "16384"
     disk_size             = ""      # Specify size or leave empty to use same size as template.
     docker_disk_size      = "100"   # Specify size for docker disk, default 100.
-    docker_disk_device    = ""
-    datastore_disk_size   = "50"    # Specify size datastore directory, default 50.
-    datastore_etcd_size   = "50"    # Specify size etcd datastore directory, default 50.
-    thin_provisioned_etcd = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     thin_provisioned      = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     eagerly_scrub         = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
     keep_disk_on_remove   = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange         = ""      # Leave blank for DHCP, else masters will be allocated range starting from this address
   }
 }
 
@@ -101,11 +120,9 @@ variable "infra" {
     memory              = "16384"
     disk_size           = ""      # Specify size or leave empty to use same size as template.
     docker_disk_size    = "100"   # Specify size for docker disk, default 100.
-    docker_disk_device  = ""
     thin_provisioned    = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     eagerly_scrub       = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
     keep_disk_on_remove = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange       = ""      # Leave blank for DHCP, else proxies will be allocated range starting from this address
   }
 }
 
@@ -118,11 +135,9 @@ variable "worker" {
     memory              = "16384"
     disk_size           = ""      # Specify size or leave empty to use same size as template.
     docker_disk_size    = "100"   # Specify size for docker disk, default 100.
-    docker_disk_device  = ""
     thin_provisioned    = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     eagerly_scrub       = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
     keep_disk_on_remove = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange       = ""      # Leave blank for DHCP, else workers will be allocated range starting from this address
   }
 }
 
@@ -135,27 +150,9 @@ variable "storage" {
     memory              = "8192"
     disk_size           = ""      # Specify size or leave empty to use same size as template.
     docker_disk_size    = "100"   # Specify size for docker disk, default 100.
-    docker_disk_device  = ""
-    log_disk_size       = "50"    # Specify size for /opt/ibm/cfc for log storage, default 50
     thin_provisioned    = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
     eagerly_scrub       = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
     keep_disk_on_remove = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange       = ""      # Leave blank for DHCP, else workers will be allocated range starting from this address
-  }
-}
-
-variable "haproxy" {
-  type = "map"
-
-  default = {
-    nodes               = "2"
-    vcpu                = "2"
-    memory              = "8192"
-    disk_size           = ""      # Specify size or leave empty to use same size as template.
-    thin_provisioned    = ""      # True or false. Whether to use thin provisioning on the disk. Leave blank to use same as template
-    eagerly_scrub       = ""      # True or false. If set to true disk space is zeroed out on VM creation. Leave blank to use same as template
-    keep_disk_on_remove = "false" # Set to 'true' to not delete a disk on removal.
-    start_iprange       = ""      # Leave blank for DHCP, else masters will be allocated range starting from this address
   }
 }
 
@@ -163,21 +160,30 @@ variable "haproxy" {
 # RHN Registration
 ####################################
 variable "rhn_username" {}
-
 variable "rhn_password" {}
 variable "rhn_poolid" {}
 
 ####################################
 # DNS Registration & Certificates
 ####################################
-variable "dnscerts" {
-  default = "false"
+
+variable "cloudflare_email" {
+  default = ""
+}
+variable "cloudflare_token" {
+  default = ""
+}
+variable "cloudflare_zone" {
+  default = ""
 }
 
-variable "cloudflare_email" {}
-variable "cloudflare_token" {}
-variable "master_cname" {}
-variable "app_cname" {}
+variable "master_cname" {
+  default = "master"
+}
+variable "app_cname" {
+  description = "wildcard app domain (don't add the *. prefix)"
+  default = "app"
+}
 variable "letsencrypt_email" {}
 
 variable "letsencrypt_api_endpoint" {
@@ -245,6 +251,7 @@ variable "storage_class" {
   default = "glusterfs-storage"
 }
 
-variable "icp_admin_password" {
-  default = "admin"
-}
+variable "dns_key_name" {}
+variable "dns_key_algorithm" {}
+variable "dns_key_secret" {}
+variable "dns_record_ttl" {}
