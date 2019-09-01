@@ -358,7 +358,7 @@ module "etchosts" {
 }
 
 module "openshift" {
-  source = "github.com/ibm-cloud-architecture/terraform-openshift-deploy"
+  source = "github.com/ibm-cloud-architecture/terraform-openshift3-deploy"
 
   dependson = [
     "${module.rhnregister.registered_resource}"
